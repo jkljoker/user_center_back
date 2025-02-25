@@ -7,17 +7,7 @@ public class User {
     private int userId;
     private String userName;
     private String userPassword;
-    private int userStatus;
     private int userRole;
-
-    public User(int userId, String userName, String userPassword, int userStatus, int userRole, int isDelete) {
-        this.userId = userId;
-        this.userName = userName;
-        this.userPassword = userPassword;
-        this.userStatus = userStatus;
-        this.userRole = userRole;
-        this.isDelete = isDelete;
-    }
 
     public User() {
     }
@@ -49,13 +39,6 @@ public class User {
         this.userPassword = userPassword;
     }
 
-    public int getUserStatus() {
-        return userStatus;
-    }
-
-    public void setUserStatus(int userStatus) {
-        this.userStatus = userStatus;
-    }
 
     public int getUserRole() {
         return userRole;

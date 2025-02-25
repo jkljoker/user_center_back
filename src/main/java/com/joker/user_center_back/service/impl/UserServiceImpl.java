@@ -90,11 +90,16 @@ public class UserServiceImpl implements UserService {
         User safeUser = new User();
         safeUser.setUserId(user.getUserId());
         safeUser.setUserName(user.getUserName());
-        safeUser.setUserStatus(user.getUserStatus());
         safeUser.setUserRole(user.getUserRole());
 
         request.getSession().setAttribute(USER_LOGIN_STATE, safeUser);
         return safeUser;
+    }
+
+    @Override
+    public int userLogout(HttpServletRequest request) {
+        request.getSession().removeAttribute(USER_LOGIN_STATE);
+        return 0;
     }
 
     boolean checkUser(String userName, String userPassword) {

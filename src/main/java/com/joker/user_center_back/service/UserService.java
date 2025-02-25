@@ -20,4 +20,9 @@ public interface UserService extends Iterable<User>{
      * @param userPassword 密码
      */
     User userLogin(String userName, String userPassword, HttpServletRequest request);
+
+    /**
+     * 实现注销登录的功能
+     */
+    int userLogout(HttpServletRequest request);
 }
