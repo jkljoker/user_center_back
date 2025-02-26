@@ -8,8 +8,9 @@ import java.util.List;
 public interface UserMapper {
 
     // 插入用户
-    @Insert("INSERT INTO user (userName, userPassword, userStatus, userRole) " +
-            "VALUES (#{userName}, #{userPassword}, #{userStatus}, #{userRole})")
+    @Insert("INSERT INTO user (userName, userPassword, userRole, isDelete) " +
+            "VALUES (#{userName}, #{userPassword}, #{userRole}, #{isDelete})")
+    @Options(useGeneratedKeys = true, keyProperty = "userId", keyColumn = "userId")
     void insert(User user);
 
     // 根据用户名删除用户

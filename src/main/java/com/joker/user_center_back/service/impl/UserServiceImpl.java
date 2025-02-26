@@ -1,6 +1,8 @@
 package com.joker.user_center_back.service.impl;
 
+import com.joker.user_center_back.constants.ErrorCode;
 import com.joker.user_center_back.domain.User;
+import com.joker.user_center_back.exception.CustomException;
 import com.joker.user_center_back.mapper.UserMapper;
 import com.joker.user_center_back.service.UserService;
 
@@ -8,7 +10,6 @@ import com.joker.user_center_back.utils.PasswordUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,26 +28,33 @@ public class UserServiceImpl implements UserService {
     @Resource
     UserMapper userMapper;
 
-    @Transactional
+    @Transactional(noRollbackFor = CustomException.class)
     @Override
-    public long userRegister(String userName, String userPassword, String checkPassword) {
+    public void userRegister(String userName, String userPassword, String checkPassword) {
+
+        /**
+         * 判断用户名和密码是否符合规范
+         */
         if (!checkUser(userName, userPassword)) {
-            return -1;
+            throw new CustomException(ErrorCode.USERNAME_PASSWORD_ERROR, ErrorCode.getMessage(ErrorCode.USERNAME_PASSWORD_ERROR));
         }
+        /**
+         * 判断校验密码是否符合规范
+         */
         if (StringUtils.isAnyBlank(checkPassword)) {
-            return -1;
+            throw new CustomException(ErrorCode.CHECKPASSWORD_ERROR, ErrorCode.getMessage(ErrorCode.CHECKPASSWORD_ERROR));
         }
         /**
          * 密码和校验密码相同
          */
         if (!userPassword.equals(checkPassword)) {
-            return -1;
+            throw new CustomException(ErrorCode.PASSWORD_CHECK_NOTMATCH, ErrorCode.getMessage(ErrorCode.PASSWORD_CHECK_NOTMATCH));
         }
         /**
          * 用户名不能重复,对数据库的操作放在最后能减少对数据库的访问
          */
         if (userMapper.selectByName(userName) != null) {
-            return -1;
+            throw new CustomException(ErrorCode.USER_ALREADY_EXISTS, ErrorCode.getMessage(ErrorCode.USER_ALREADY_EXISTS));
         }
         /**
          * 对密码进行加密
@@ -61,7 +69,12 @@ public class UserServiceImpl implements UserService {
         user.setUserPassword(newPassword);
         userMapper.insert(user);
 
-        return user.getUserId();
+        System.out.println(user.getUserId());
+        System.out.println(user.getUserName());
+        System.out.println(user.getUserPassword());
+        System.out.println(user.getUserRole());
+        System.out.println(user.getIsDelete());
+        throw new CustomException(ErrorCode.SUCCESS, ErrorCode.getMessage(ErrorCode.SUCCESS));
     }
 
     @Override
@@ -70,18 +83,18 @@ public class UserServiceImpl implements UserService {
          * 对用户名和密码进行格式判断，如果不符合标准就不进行数据库的访问
          */
         if (!checkUser(userName, userPassword)) {
-            return null;
+            throw new CustomException(ErrorCode.USERNAME_PASSWORD_ERROR, ErrorCode.getMessage(ErrorCode.USERNAME_PASSWORD_ERROR));
         }
         /**
          * 访问数据库，判断用户名是否存在
          */
         User user = userMapper.selectByName(userName);
         if (user == null) {
-            return null;
+            throw new CustomException(ErrorCode.USER_NOT_FOUND, ErrorCode.getMessage(ErrorCode.USER_NOT_FOUND));
         }
         // 使用 BCrypt 的 matches 方法进行密码验证
         if(!PasswordUtils.matches(userPassword, user.getUserPassword())) {
-            return null;
+            throw new CustomException(ErrorCode.PASSWORD_ERROR, ErrorCode.getMessage(ErrorCode.PASSWORD_ERROR));
         }
 
         /**

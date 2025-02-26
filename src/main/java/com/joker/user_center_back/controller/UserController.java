@@ -22,13 +22,8 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/register")
-    public String register(@RequestBody UserRegister userRegister) {
-        long result = userService.userRegister(userRegister.getUserName(), userRegister.getUserPassword(), userRegister.getCheckPassword());
-        if(result == -1) {
-            return "注册失败";
-        } else {
-            return "注册成功";
-        }
+    public void register(@RequestBody UserRegister userRegister) {
+        userService.userRegister(userRegister.getUserName(), userRegister.getUserPassword(), userRegister.getCheckPassword());
     }
 
     @PostMapping("/login")

@@ -12,8 +12,7 @@ public class User {
     public User() {
     }
 
-    @TableLogic
-    private int isDelete;
+
 
     public int getUserId() {
         return userId;
@@ -47,8 +46,10 @@ public class User {
     public void setUserRole(int userRole) {
         this.userRole = userRole;
     }
+    @TableLogic
+    private Integer isDelete = 0;
 
-    public int getIsDelete() {
+    public Integer getIsDelete() {
         return isDelete;
     }
 
