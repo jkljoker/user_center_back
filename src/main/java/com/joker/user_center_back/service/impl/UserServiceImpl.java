@@ -10,6 +10,7 @@ import com.joker.user_center_back.utils.PasswordUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +31,7 @@ public class UserServiceImpl implements UserService {
 
     @Transactional(noRollbackFor = CustomException.class)
     @Override
-    public void userRegister(String userName, String userPassword, String checkPassword) {
+    public User userRegister(String userName, String userPassword, String checkPassword) {
 
         /**
          * 判断用户名和密码是否符合规范
@@ -69,16 +70,11 @@ public class UserServiceImpl implements UserService {
         user.setUserPassword(newPassword);
         userMapper.insert(user);
 
-        System.out.println(user.getUserId());
-        System.out.println(user.getUserName());
-        System.out.println(user.getUserPassword());
-        System.out.println(user.getUserRole());
-        System.out.println(user.getIsDelete());
-        throw new CustomException(ErrorCode.SUCCESS, ErrorCode.getMessage(ErrorCode.SUCCESS));
+        return user;
     }
 
     @Override
-    public User userLogin(String userName, String userPassword, HttpServletRequest request) {
+    public ResponseEntity<User> userLogin(String userName, String userPassword, HttpServletRequest request) {
         /**
          * 对用户名和密码进行格式判断，如果不符合标准就不进行数据库的访问
          */
@@ -101,12 +97,11 @@ public class UserServiceImpl implements UserService {
          * 对用户数据去敏,在此处是隐藏userPassword
          */
         User safeUser = new User();
-        safeUser.setUserId(user.getUserId());
         safeUser.setUserName(user.getUserName());
         safeUser.setUserRole(user.getUserRole());
 
         request.getSession().setAttribute(USER_LOGIN_STATE, safeUser);
-        return safeUser;
+        return ResponseEntity.ok(safeUser);
     }
 
     @Override

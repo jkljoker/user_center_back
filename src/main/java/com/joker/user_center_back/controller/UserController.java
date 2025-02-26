@@ -1,8 +1,10 @@
 package com.joker.user_center_back.controller;
 
+import com.joker.user_center_back.constants.ErrorCode;
 import com.joker.user_center_back.domain.User;
 import com.joker.user_center_back.dto.request.UserLogin;
 import com.joker.user_center_back.dto.request.UserRegister;
+import com.joker.user_center_back.exception.CustomException;
 import com.joker.user_center_back.service.UserService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,22 +24,19 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/register")
-    public void register(@RequestBody UserRegister userRegister) {
-        userService.userRegister(userRegister.getUserName(), userRegister.getUserPassword(), userRegister.getCheckPassword());
+    public ResponseEntity<String> register(@RequestBody UserRegister userRegister) {
+        User user = userService.userRegister(userRegister.getUserName(), userRegister.getUserPassword(), userRegister.getCheckPassword());
+        if (user == null) {
+            throw new CustomException(ErrorCode.UNKNOWN_ERROR, ErrorCode.getMessage(ErrorCode.UNKNOWN_ERROR));
+        } else {
+            return ResponseEntity.ok("用户"+ user.getUserName() + "注册成功");
+        }
     }
 
     @PostMapping("/login")
     public ResponseEntity<User> login(@RequestBody UserLogin userLogin, HttpServletRequest request) {
         // 调用 userService 进行登录验证
-        User user = userService.userLogin(userLogin.getUserName(), userLogin.getUserPassword(), request);
-
-        if (user != null) {
-            // 如果登录成功，返回 200 OK 和用户信息
-            return ResponseEntity.ok(user);
-        } else {
-            // 如果登录失败，返回 401 Unauthorized
-            return ResponseEntity.status(401).build();
-        }
+        return userService.userLogin(userLogin.getUserName(), userLogin.getUserPassword(), request);
     }
 
     @PostMapping("/logout")

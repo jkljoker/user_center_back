@@ -1,11 +1,14 @@
 package com.joker.user_center_back.domain;
 
 import com.baomidou.mybatisplus.annotation.TableLogic;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 
 public class User {
+    @JsonIgnore
     private int userId;
     private String userName;
+    @JsonIgnore
     private String userPassword;
     private int userRole;
 
@@ -47,6 +50,7 @@ public class User {
         this.userRole = userRole;
     }
     @TableLogic
+    @JsonIgnore
     private Integer isDelete = 0;
 
     public Integer getIsDelete() {
