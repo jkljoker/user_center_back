@@ -25,7 +25,14 @@ public interface UserService extends Iterable<User>{
     ResponseEntity<User> userLogin(String userName, String userPassword, HttpServletRequest request);
 
     /**
-     * 实现注销登录的功能
+     * 实现退出登录的功能
      */
-    int userLogout(HttpServletRequest request);
+    void userLogout(HttpServletRequest request);
+
+    /**
+     * 实现删除用户的功能(仅管理员可删除)
+     *
+     * @return
+     */
+    Integer delete(String userName, HttpServletRequest request);
 }

@@ -10,8 +10,6 @@ public class ErrorCode {
 
     // 认证错误码
     public static final int UNAUTHORIZED = 40100;
-    public static final int FORBIDDEN = 40300;
-    public static final int NOT_FOUND = 40400;
 
     // 用户模块错误码
     public static final int USERNAME_PASSWORD_ERROR = 10001;
@@ -33,10 +31,6 @@ public class ErrorCode {
                 return "未知错误";
             case UNAUTHORIZED:
                 return "未授权";
-            case FORBIDDEN:
-                return "禁止访问";
-            case NOT_FOUND:
-                return "资源未找到";
             case USERNAME_PASSWORD_ERROR:
                 return "用户名或密码错误";
             case USER_NOT_FOUND:

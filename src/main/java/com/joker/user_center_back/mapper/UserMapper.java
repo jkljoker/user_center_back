@@ -15,7 +15,7 @@ public interface UserMapper {
 
     // 根据用户名删除用户
     @Delete("DELETE FROM user WHERE userName = #{userName}")
-    void deleteByUserName(String userName);
+    Integer deleteByUserName(String userName);
 
     // 根据用户名和角色删除用户
     @Delete("DELETE FROM user WHERE userName = #{userName} AND userRole = #{userRole}")

@@ -6,10 +6,10 @@ public class Constants {
     /**
      * 默认权限
      */
-    int DEFAULT_ROLE = 0;
+    public static int DEFAULT_ROLE = 0;
 
     /**
      * 管理员权限
      */
-    int ADMIN_ROLE = 1;
+    public static int ADMIN_ROLE = 1;
 }

@@ -21,7 +21,7 @@ import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.joker.user_center_back.constants.Constants.USER_LOGIN_STATE;
+import static com.joker.user_center_back.constants.Constants.*;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -105,9 +105,36 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public int userLogout(HttpServletRequest request) {
+    public void userLogout(HttpServletRequest request) {
+        if (request == null || request.getSession() == null) {
+            throw new CustomException(ErrorCode.SYSTEM_ERROR, "Session is invalid.");
+        }
         request.getSession().removeAttribute(USER_LOGIN_STATE);
-        return 0;
+    }
+
+    @Override
+    public Integer delete(String userName, HttpServletRequest request) {
+        User user = (User) request.getSession().getAttribute(USER_LOGIN_STATE);
+        /**
+         * 分为两种情况
+         * 一种是管理员用户可以删除非管理员用户
+         * 一种是用户可以删除自己
+         */
+        /**
+         * 既不是管理员，又不是删除自己的账号,那就权限不足
+         */
+        if (!user.getUserName().equals(userName) && user.getUserRole() == DEFAULT_ROLE) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED, ErrorCode.getMessage(ErrorCode.UNAUTHORIZED));
+        }
+        /**
+         * 是管理员，但是删除的是其他管理员，同样权限不足
+         */
+        User newUser = userMapper.selectByName(userName);
+        if (newUser.getUserRole() == ADMIN_ROLE && !user.getUserName().equals(userName)) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED, ErrorCode.getMessage(ErrorCode.UNAUTHORIZED));
+        }
+
+        return userMapper.deleteByUserName(userName);
     }
 
     boolean checkUser(String userName, String userPassword) {
