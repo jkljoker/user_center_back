@@ -4,9 +4,6 @@ public class UserLogin {
     private String userName;
     private String userPassword;
 
-    public UserLogin() {
-    }
-
     public UserLogin(String userName, String userPassword) {
         this.userName = userName;
         this.userPassword = userPassword;

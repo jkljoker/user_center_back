@@ -6,11 +6,11 @@ import com.joker.user_center_back.exception.CustomException;
 import com.joker.user_center_back.mapper.UserMapper;
 import com.joker.user_center_back.service.UserService;
 
+import com.joker.user_center_back.utils.ApiResponse;
 import com.joker.user_center_back.utils.PasswordUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -74,7 +74,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity<User> userLogin(String userName, String userPassword, HttpServletRequest request) {
+    public ApiResponse<User> userLogin(String userName, String userPassword, HttpServletRequest request) {
         /**
          * 对用户名和密码进行格式判断，如果不符合标准就不进行数据库的访问
          */
@@ -101,20 +101,31 @@ public class UserServiceImpl implements UserService {
         safeUser.setUserRole(user.getUserRole());
 
         request.getSession().setAttribute(USER_LOGIN_STATE, safeUser);
-        return ResponseEntity.ok(safeUser);
+        System.out.println("Received userName: " + userName);
+        System.out.println("Received userPassword: " + userPassword);
+        System.out.println(request.getSession());
+        return ApiResponse.success(safeUser);
     }
 
     @Override
-    public void userLogout(HttpServletRequest request) {
+    public ApiResponse<String> userLogout(HttpServletRequest request) {
         if (request == null || request.getSession() == null) {
-            throw new CustomException(ErrorCode.SYSTEM_ERROR, "Session is invalid.");
+            throw new CustomException(ErrorCode.SYSTEM_ERROR, ErrorCode.getMessage(ErrorCode.SYSTEM_ERROR));
         }
         request.getSession().removeAttribute(USER_LOGIN_STATE);
+        return ApiResponse.success("退出成功");
     }
 
     @Override
-    public Integer delete(String userName, HttpServletRequest request) {
+    public ApiResponse<String> delete(String userName, HttpServletRequest request) {
         User user = (User) request.getSession().getAttribute(USER_LOGIN_STATE);
+        /**
+         * 没登录不能使用该功能
+         */
+        if (user == null) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED, ErrorCode.getMessage(ErrorCode.UNAUTHORIZED));
+        }
+
         /**
          * 分为两种情况
          * 一种是管理员用户可以删除非管理员用户
@@ -126,17 +137,42 @@ public class UserServiceImpl implements UserService {
         if (!user.getUserName().equals(userName) && user.getUserRole() == DEFAULT_ROLE) {
             throw new CustomException(ErrorCode.UNAUTHORIZED, ErrorCode.getMessage(ErrorCode.UNAUTHORIZED));
         }
+
+        /**
+         * 判断要删除的用户是否存在
+         */
+        User newUser = userMapper.selectByName(userName);
+        if (newUser == null) {
+            throw new CustomException(ErrorCode.USER_NOT_FOUND, ErrorCode.getMessage(ErrorCode.USER_NOT_FOUND));
+        }
         /**
          * 是管理员，但是删除的是其他管理员，同样权限不足
          */
-        User newUser = userMapper.selectByName(userName);
         if (newUser.getUserRole() == ADMIN_ROLE && !user.getUserName().equals(userName)) {
             throw new CustomException(ErrorCode.UNAUTHORIZED, ErrorCode.getMessage(ErrorCode.UNAUTHORIZED));
         }
 
-        return userMapper.deleteByUserName(userName);
+
+        if(userMapper.deleteByUserName(userName) == 1) {
+            return ApiResponse.success("用户" + userName + "删除成功");
+        } else {
+            throw new CustomException(ErrorCode.SYSTEM_ERROR, ErrorCode.getMessage(ErrorCode.SYSTEM_ERROR));
+        }
     }
 
+    @Override
+    public ApiResponse<User> current(HttpServletRequest request) {
+        User user = (User) request.getSession().getAttribute(USER_LOGIN_STATE);
+        if (user == null) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED, ErrorCode.getMessage(ErrorCode.UNAUTHORIZED));
+        } else {
+            return ApiResponse.success(user);
+        }
+    }
+
+    /**
+     * 检查用户名和密码是否合规
+     */
     boolean checkUser(String userName, String userPassword) {
         /**
          * 判断是否非空

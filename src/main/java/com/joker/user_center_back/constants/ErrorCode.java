@@ -1,6 +1,5 @@
 package com.joker.user_center_back.constants;
 
-import org.apache.ibatis.annotations.Case;
 
 public class ErrorCode {
     // 通用错误码
@@ -10,6 +9,7 @@ public class ErrorCode {
 
     // 认证错误码
     public static final int UNAUTHORIZED = 40100;
+    public static final int REQUEST_IS_NULL = 400001;
 
     // 用户模块错误码
     public static final int USERNAME_PASSWORD_ERROR = 10001;
@@ -43,6 +43,8 @@ public class ErrorCode {
                 return "校验码错误";
             case PASSWORD_ERROR:
                 return "密码错误";
+            case REQUEST_IS_NULL:
+                return "请求不能为空";
             default:
                 return "未定义错误";
         }

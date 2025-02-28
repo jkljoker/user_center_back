@@ -1,8 +1,8 @@
 package com.joker.user_center_back.service;
 
 import com.joker.user_center_back.domain.User;
+import com.joker.user_center_back.utils.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.http.ResponseEntity;
 
 public interface UserService extends Iterable<User>{
 
@@ -22,17 +22,24 @@ public interface UserService extends Iterable<User>{
      * @param userName     用户名
      * @param userPassword 密码
      */
-    ResponseEntity<User> userLogin(String userName, String userPassword, HttpServletRequest request);
+    ApiResponse<User> userLogin(String userName, String userPassword, HttpServletRequest request);
 
     /**
      * 实现退出登录的功能
+     *
+     * @return
      */
-    void userLogout(HttpServletRequest request);
+    ApiResponse<String> userLogout(HttpServletRequest request);
 
     /**
      * 实现删除用户的功能(仅管理员可删除)
      *
      * @return
      */
-    Integer delete(String userName, HttpServletRequest request);
+    ApiResponse<String> delete(String userName, HttpServletRequest request);
+
+    /**
+     * 查询当前用户信息
+     */
+    ApiResponse<User> current(HttpServletRequest request);
 }

@@ -5,9 +5,6 @@ public class UserRegister {
     String userPassword;
     String checkPassword;
 
-    public UserRegister() {
-    }
-
     public UserRegister(String userName, String userPassword, String checkPassword) {
         this.userName = userName;
         this.userPassword = userPassword;
